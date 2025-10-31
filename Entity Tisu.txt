@@ -1,0 +1,163 @@
+Tisu (The Intelligent Schedule User)
+
+? ở cuối: có thể có hoặc không
+
++Table: AuthToken
+id (PK): UUID
+accountId (FK): UUID
+refreshToken: String
+expiresAt: datetime
+deviceInfo: String ?      # Lưu tên thiết bị hoặc IP để bảo mật hơn
+ipAddress: String ?
+createdAt: datetime
+revoked: boolean (default false)
+tokenType: Enum(REFRESH, ACCESS)
+Relationships:
+account: Many-to-One Account
+
++Table: Account (Tài khoản)
+id (PK): UUID 
+userId (FK): UUID → User.id
+username: String  unique
+hashedPassword: String - Password
+role: Enum(Role) (USER, ADMIN) (default: USER)
+authProvider: Enum(LOCAL, GOOGLE, FACEBOOK)
+lastLoginAt: datetime
+createdAt: datetime - Created Date
+updatedAt: datetime - Update Date
+Relationships:
+authtoken: One-to-Many Auth Token
+user: Many-to-One User
+
++Table: User
+id (PK): UUID
+firstName: String
+lastName: String
+dateOfBirth: Date ?
+email: String unique
+phone: String ?
+address: String ?
+avatarUrl: String ?
+gender: Enum(MALE, FEMALE, OTHER) ?
+isVerified: boolean - xác thực email
+createdAt: datetime
+updatedAt: datetime
+status: Enum(ACTIVE, SUSPENDED, DELETED) (default: ACTIVE) - trạng thái tài khoản
+Relationships:
+tasks: One-to-Many Task
+taskGroups: One-to-Many TaskGroup 
+events: One-to-Many Event
+reminders: One-to-Many reminders
+tag: One-to-Many Tag
+
++Table: Tag
+id (PK): UUID
+name: String
+icon: String ?
+userId (FK): UUID
+Relationships:
+user: Many-to-One User
+tasks: One-to-Many Task
+taskGroups: One-to-Many TaskGroup
+
++Table: Task (Nhiệm vụ)
+id (PK): UUID - Task ID
+title: String - Task Title
+dueDate: datetime - Due Date ?
+description: Text ?
+status: Enum (PENDING, DONE) - default: PENDING
+priority: Enum (NONE, LOW, MEDIUM, HIGH) (default: NONE)
+taskGroupId (FK): UUID ?
+tagId (FK): UUID 
+userId (FK): UUID
+Relationships:
+user: Many-to-One User
+taskGroups: Many-to-One TaskGroup
+tag: Many-to-One Tag
+reminders: One-to-Many reminders
+
++Table: TaskGroup
+id (PK): UUID
+title: String
+description: Text ?
+color: String ?
+userId (FK): UUID
+tagId (FK): UUID ?
+createdAt: datetime
+updatedAt: datetime
+Relationships:
+tasks: One-to-Many Task
+tag: Many-to-One Tag
+user: Many-to-One User
+
++Table: Event (Sự kiện)
+id (PK): UUID - Event ID
+title: String 
+startTime: datetime
+endTime: datetime ?
+location: String ?
+description: Text ?
+isAllDay: boolean ?
+color: String ?  # phân biệt sự kiện bằng màu
+userId (FK): UUID
+calendarId (FK): UUID ?
+reminderId(FK): UUID ?
+Relationships:
+user: Many-to-One User
+reminder: Many-to-One Reminder
+
++Table: Reminder (Nhắc nhở)
+id (PK): UUID - Reminder ID
+msg: String
+targetId: UUID - ID của đối tượng được nhắc.
+targetType: Enum (TASK, EVENT, NOTE, CUSTOM)
+remindAt: datetime ?
+status: Enum (SCHEDULED, FIRED, DISMISSED) ?
+repeatRule: String ? 
+userId (FK): UUID
+Relationships:
+user: Many-to-One User
+
+
+Xem xét sau: xác thực email khi đăng ký
++Table: EmailVerificationToken
+id (PK): UUID
+userId (FK): UUID
+token: String
+expiresAt: datetime
+isUsed: boolean (default false)
+createdAt: datetime
+
+
+*Mở rộng: 
+- Note (Ghi chú) - mở rộng sau
+    - Ghi chú ngắn (text, danh sách, ý tưởng)
+    - Hỗ trợ Markdown hoặc định dạng cơ bản (in đậm, gạch đầu dòng, v.v.)
+    - Có thể đính kèm ảnh, file
+    - Tìm kiếm ghi chú theo từ khóa hoặc ngày tạo
+id (PK): UUID - Note ID
+title: String - Title Name
+content: text ?
+createdAt: datetime
+updatedAt: datetime
+color: String ?  # đánh dấu màu ghi chú
+isPinned: boolean ? (ghim ghi chú quan trọng lên đầu)
+attachments: JSON ? (đính kèm file, ảnh)
+reminderId: UUID ? (nếu muốn nhắc ghi chú này sau)
+deletedAt: datetime (hỗ trợ khôi phục ghi nhớ)
+userId (FK): UUID
+
+- Đồng bộ cloud (API + DB server) - mở rộng sau
+
+- Quản lý chi tiêu - mở rộng sau
++Table: Expense
+id (PK): UUID
+userId (FK): UUID
+amount: Decimal
+category: Enum(FOOD, TRANSPORT, ENTERTAINMENT, OTHER)
+description: Text ?
+date: datetime
+paymentMethod: Enum(CASH, CARD, TRANSFER)
+createdAt: datetime
+updatedAt: datetime
+
