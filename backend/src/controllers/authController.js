@@ -2,6 +2,11 @@ import Account from "../models/account.js";
 import User from "../models/user.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
+import Session from "../models/session.js";
+
+const ACCESS_TOKEN_TTL = '30m';
+const REFRESH_TOKEN_TTL = 14 * 24 * 60 * 60 * 1000; // 14 days in milliseconds
 
 export const registerUser = async (req, res) => {
     try {
@@ -41,16 +46,41 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
     try {
         const { username, password } = req.body;
-        // Find account by username and check password
+        // Validate input
+        if (!username || !password) {
+            return res.status(400).json({ message: "Missing username or password" });
+        }
+
+        // Find account by username
         const account = await Account.findOne({ username });
-        const isPasswordValid = await bcrypt.compare(password, account.hashedPassword);
-        if (!isPasswordValid || !account) {
+        if (!account) {
             return res.status(400).json({ message: "Invalid username or password" });
         }
 
-        // Generate JWT token
-        const token = jwt.sign({ accountId: account._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
-        res.status(200).json({ token });
+        // Compare password
+        const isPasswordValid = await bcrypt.compare(password, account.hashedPassword);
+        if (!isPasswordValid) {
+            return res.status(400).json({ message: "Invalid username or password" });
+        }
+
+        // Tạo JWT token
+        const accessToken = jwt.sign({ accountId: account._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: ACCESS_TOKEN_TTL });
+
+        // Tạo refresh token ngẫu nhiên
+        const refreshToken = crypto.randomBytes(64).toString('hex');
+
+        // Tạo session mới để lưu refresh token
+        const session = new Session({ userId: account._id, refreshToken, expiresAt: Date.now() + REFRESH_TOKEN_TTL });
+        await session.save();
+
+        // Trả refresh token về trong cookie
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true, secure: true, sameSite: "none",
+            maxAge: REFRESH_TOKEN_TTL
+        });
+
+        // Trả access token về trong response
+        return res.status(200).json({ message: `User ${username} logged in successfully`, accessToken });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Server error" });
