@@ -74,15 +74,28 @@ export const loginUser = async (req, res) => {
         await session.save();
 
         // Trả refresh token về trong cookie
-        res.cookie("refreshToken", refreshToken, {
-            httpOnly: true, secure: true, sameSite: "none",
-            maxAge: REFRESH_TOKEN_TTL
-        });
+        res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: true, sameSite: "none", maxAge: REFRESH_TOKEN_TTL });
 
         // Trả access token về trong response
         return res.status(200).json({ message: `User ${username} logged in successfully`, accessToken });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Server error" });
+    }
+};
+
+export const logoutUser = async (req, res) => {
+    try {
+        // Xóa refresh token trong cookie và trong database
+        const refreshToken = req.cookies?.refreshToken;
+        if (!refreshToken) {
+            return res.status(204).json({ message: 'No refresh token found' });
+        }
+        await Session.deleteOne({ refreshToken });
+        res.clearCookie("refreshToken");
+        res.status(200).json({ message: 'Logout successful' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
     }
 };
