@@ -9,11 +9,28 @@ import {
   FieldSeparator,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { z } from "zod"
+import React from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 
-export function LoginForm({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+const loginFormSchema = z.object({
+  username: z.string().min(3, "Tên đăng nhập phải có 3 ký tự"),
+  password: z.string().min(8, "Mật khẩu phải có ít nhất 8 ký tự"),
+})
+
+type LoginFormValues = z.infer<typeof loginFormSchema>
+
+export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginFormSchema),
+  });
+
+  async function onSubmit(data: LoginFormValues) {
+    console.log(data)
+    // Gửi dữ liệu đăng ký đến API hoặc xử lý theo yêu cầu
+  }
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden p-0 border-border">
@@ -21,30 +38,31 @@ export function LoginForm({
           <form className="p-6 md:p-8">
             <FieldGroup>
               <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="text-2xl font-bold">Welcome back</h1>
+                <h1 className="text-2xl font-bold">Chào mừng trở lại</h1>
                 <p className="text-muted-foreground text-balance">
-                  Login to your Acme Inc account
+                  Đăng nhập vào tài khoản của bạn
                 </p>
               </div>
-              <Field>
+              <Field className="gap-2">
                 <FieldLabel htmlFor="username">Tên đăng nhập</FieldLabel>
-                <Input
-                  id="username"
-                  type="text"
-                  required
-                />
+                <Input id="username" type="text" {...register("username")} />
+                {errors.username && (<p className="text-sm text-red-600">{errors.username.message}</p>)}
               </Field>
-              <Field>
-                <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Mật khẩu</FieldLabel>
-                </div>
-                <Input id="password" type="password" required />
+
+              <Field className="gap-2">
+                <FieldLabel htmlFor="password">Mật khẩu</FieldLabel>
+                <Input id="password" type="password" {...register("password")} />
+                {errors.password && (<p className="text-sm text-red-600">{errors.password.message}</p>)}
               </Field>
               <a href="#" className="ml-auto text-sm underline-offset-2 hover:underline">
                 Quên mật khẩu?
               </a>
-              <Field>
-                <Button type="submit">Đăng nhập</Button>
+              <Field className="gap-2">
+                <Button type="submit" 
+                onClick={handleSubmit(onSubmit)} 
+                disabled={isSubmitting}
+                className="w-full">
+                  Đăng nhập</Button>
               </Field>
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
                 Hoặc tiếp tục với
@@ -79,7 +97,7 @@ export function LoginForm({
                 </Button>
               </Field>
               <FieldDescription className="text-center text-sm">
-                Don&apos;t have an account? <a href="/signup" className="underline underline-offset-4">Sign up</a>
+                Chưa có tài khoản? <a href="/signup" className="underline underline-offset-4">Đăng ký</a>
               </FieldDescription>
             </FieldGroup>
           </form>
@@ -90,7 +108,7 @@ export function LoginForm({
               className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
             />
           </div>
-          <div className="bg-muted relative hidden md:flex flex-col justify-center items-center p-8">
+          {/* <div className="bg-muted relative hidden md:flex flex-col justify-center items-center p-8">
             <img
               src="/logo-full-light.png"
               alt="Logo"
@@ -101,19 +119,8 @@ export function LoginForm({
               Chào mừng bạn đến với Tisu! Tisu là nền tảng tất cả trong một giúp bạn
               quản lý công việc, giao tiếp nhóm và tăng năng suất.
             </p>
-          </div>
-          <div className="bg-muted relative hidden md:flex flex-col justify-center items-center p-8">
-            <img
-              src="/logo-full-light.png"
-              alt="Logo"
-              className="mb-4 h-12 w-auto
-              // dark:brightness-[0.2] dark:grayscale"
-            />
-            <p className="text-center text-sm text-muted-foreground">
-              Chào mừng bạn đến với Tisu! Tisu là nền tảng tất cả trong một giúp bạn
-              quản lý công việc, giao tiếp nhóm và tăng năng suất.
-            </p>
-          </div>
+          </div> */}
+          
         </CardContent>
       </Card>
       <FieldDescription className="px-6 text-center">
