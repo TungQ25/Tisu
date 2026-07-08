@@ -1,0 +1,56 @@
+# Java / Spring Boot / Gradle
+/backend/target/
+/backend/.gradle/
+/backend/build/
+/backend/out/
+/backend/.kotlin/
+
+# Android legacy / Gradle
+/frontend/.gradle/
+/frontend/build/
+/frontend/app/build/
+
+# Flutter
+/tisu_app/build/
+/tisu_app/.dart_tool/
+/tisu_app/.flutter-plugins
+/tisu_app/.flutter-plugins-dependencies
+/tisu_app/.pub-cache/
+/tisu_app/.pub/
+/tisu_app/coverage/
+
+# Android local SDK / signing
+**/local.properties
+**/key.properties
+**/*.jks
+**/*.keystore
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Local tool settings
+**/.claude/settings.local.json
+
+# Env
+.env
+.env.*
+!.env.example
+!.env.*.example
+application-prod.yml
+application-local.yml
+application-local.properties
+application-*.local.properties
+
+# Logs / runtime dumps
+*.log
+logs/
+hs_err_pid*
+replay_pid*
+
+# OS
+.DS_Store
+Thumbs.db
