@@ -4,6 +4,7 @@
 /backend/build/
 /backend/out/
 /backend/.kotlin/
+/backend/bin
 
 # Android legacy / Gradle
 /frontend/.gradle/
