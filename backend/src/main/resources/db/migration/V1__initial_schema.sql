@@ -100,10 +100,13 @@ CREATE TABLE sync_operations (
     entity_id VARCHAR(80) NOT NULL,
     operation VARCHAR(20) NOT NULL,
     base_version BIGINT NOT NULL DEFAULT 0,
-    server_version BIGINT NOT NULL DEFAULT 0,
     client_timestamp BIGINT NOT NULL,
     server_timestamp BIGINT NOT NULL,
     payload_json TEXT,
+    CONSTRAINT ck_sync_operations_entity_type CHECK (
+        entity_type IN ('TASK', 'CATEGORY', 'HABIT', 'HABIT_COMPLETION')
+    ),
+    CONSTRAINT ck_sync_operations_operation CHECK (operation IN ('CREATE', 'UPDATE', 'DELETE', 'RESTORE')),
     CONSTRAINT fk_sync_operations_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 

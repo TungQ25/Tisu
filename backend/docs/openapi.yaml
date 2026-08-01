@@ -779,19 +779,29 @@ components:
           type: string
         entityType:
           type: string
+          enum:
+          - task
+          - category
+          - habit
+          - habit_completion
         entityId:
           type: string
         operation:
           type: string
+          enum:
+          - create
+          - update
+          - delete
+          - restore
         baseVersion:
           type: integer
           format: int64
-        serverVersion:
-          type: integer
-          format: int64
+          minimum: 0
+          description: Version observed by the client before creating the operation; use 0 for create or unknown.
         clientTimestamp:
           type: integer
           format: int64
+          minimum: 0
         payloadJson:
           type: string
     SyncOperationResponse:
@@ -805,16 +815,25 @@ components:
           type: string
         entityType:
           type: string
+          enum:
+          - task
+          - category
+          - habit
+          - habit_completion
         entityId:
           type: string
         operation:
           type: string
+          enum:
+          - create
+          - update
+          - delete
+          - restore
         baseVersion:
           type: integer
           format: int64
-        serverVersion:
-          type: integer
-          format: int64
+          minimum: 0
+          description: Version observed by the client before creating the operation.
         clientTimestamp:
           type: integer
           format: int64

@@ -44,7 +44,7 @@ public class HabitService {
         habit.setUserId(currentUserId);
         habit.setDeleted(false);
         habit.setDeletedAt(null);
-        habit.setVersion(SyncMetadata.initialVersion(request.version()));
+        habit.setVersion(SyncMetadata.initialVersion());
         habit.setLastModifiedDeviceId(SyncMetadata.normalizeDeviceId(request.deviceId()));
         normalizeTimestamps(habit, habit);
         return HabitResponse.from(habitRepository.save(habit));

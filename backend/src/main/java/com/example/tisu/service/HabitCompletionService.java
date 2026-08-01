@@ -55,7 +55,7 @@ public class HabitCompletionService {
         completion.setUserId(currentUserId);
         completion.setDeleted(false);
         completion.setDeletedAt(null);
-        completion.setVersion(SyncMetadata.initialVersion(request.version()));
+        completion.setVersion(SyncMetadata.initialVersion());
         completion.setLastModifiedDeviceId(SyncMetadata.normalizeDeviceId(request.deviceId()));
         normalizeTimestamps(completion, completion);
         return HabitCompletionResponse.from(completionRepository.save(completion));

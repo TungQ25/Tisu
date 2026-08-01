@@ -57,7 +57,7 @@ public class TaskService {
         task.setDeleted(false);
         task.setDeletedAt(null);
         task.setUserId(currentUserId);
-        task.setVersion(SyncMetadata.initialVersion(request.version()));
+        task.setVersion(SyncMetadata.initialVersion());
         task.setLastModifiedDeviceId(SyncMetadata.normalizeDeviceId(request.deviceId()));
         normalizeUpdatedAt(task, task);
         return TaskResponse.from(taskRepository.save(task));

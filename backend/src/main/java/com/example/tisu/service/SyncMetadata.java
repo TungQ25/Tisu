@@ -8,13 +8,13 @@ public final class SyncMetadata {
     }
 
     public static void requireFreshVersion(long requestedVersion, long currentVersion) {
-        if (requestedVersion > 0 && currentVersion > 0 && requestedVersion < currentVersion) {
+        if (requestedVersion != currentVersion) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Version conflict");
         }
     }
 
-    public static long initialVersion(long requestedVersion) {
-        return requestedVersion > 0 ? requestedVersion : 1L;
+    public static long initialVersion() {
+        return 1L;
     }
 
     public static long nextVersion(long currentVersion) {

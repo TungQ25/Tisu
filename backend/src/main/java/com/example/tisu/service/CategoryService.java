@@ -36,13 +36,14 @@ public class CategoryService {
         if (category.getId() == null || category.getId().isBlank()) {
             category.setId(UUID.randomUUID().toString());
         }
+        // TODO: thêm kiểm tra tên đã tồn tại
         if (categoryRepository.existsById(category.getId())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Category id already exists");
         }
         category.setUserId(currentUserId);
         category.setDeleted(false);
         category.setDeletedAt(null);
-        category.setVersion(SyncMetadata.initialVersion(request.version()));
+        category.setVersion(SyncMetadata.initialVersion());
         category.setLastModifiedDeviceId(SyncMetadata.normalizeDeviceId(request.deviceId()));
         normalizeTimestamps(category, category);
         return CategoryResponse.from(categoryRepository.save(category));
@@ -68,6 +69,10 @@ public class CategoryService {
         String currentUserId = requireUserId(userId);
         Category category = categoryRepository.findAccessibleById(id, currentUserId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
+        if (category.isDeleted()) {
+            return CategoryResponse.from(category);
+        }
+
         long now = System.currentTimeMillis();
         category.setDeleted(true);
         category.setDeletedAt(now);
