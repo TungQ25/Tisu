@@ -1,6 +1,6 @@
-# Task Manager Backend
+# Tisu Backend
 
-Spring Boot REST API for the Android Task Manager app.
+Spring Boot REST API for the Tisu app.
 
 ## Requirements
 
